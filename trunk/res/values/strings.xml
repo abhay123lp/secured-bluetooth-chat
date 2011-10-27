@@ -38,4 +38,13 @@
     <string name="secure_connect">Connect a device - Secure</string>
     <string name="insecure_connect">Connect a device - Insecure</string>
     <string name="discoverable">Make discoverable</string>
+    
+    <!-- Dropdown Menu -->
+    <string name="quicklist_prompt">Choose message</string>
+    <string-array name="quicklist">
+        <item>Tango Down.</item>
+        <item>Danger Ahead</item>
+        <item>Help!</item>
+    </string-array>
+
 </resources>
