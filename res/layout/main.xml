@@ -25,13 +25,13 @@
         android:transcriptMode="alwaysScroll"
         android:layout_weight="1"
     />
+
     <Spinner
-            android:id="@+id/quicklist"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:prompt="@string/quicklist_prompt"
-    />
+        android:id="@+id/quicklist"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:prompt="@string/quicklist_prompt" />
+
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
