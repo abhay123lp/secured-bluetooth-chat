@@ -44,7 +44,7 @@ import android.widget.Toast;
  * This is the main Activity that displays the current chat session.
  */
 public class BluetoothChat extends Activity {
-    // Debugging
+    // Debugging Stuff
     private static final String TAG = "BluetoothChat";
     private static final boolean D = true;
 
