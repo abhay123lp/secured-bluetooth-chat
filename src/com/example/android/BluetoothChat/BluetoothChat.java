@@ -55,7 +55,7 @@ public class BluetoothChat extends Activity {
     public static final int MESSAGE_DEVICE_NAME = 4;
     public static final int MESSAGE_TOAST = 5;
 
-    // Key names received from the BluetoothChatService Handler
+    // Key names received from the BluetoothChatService Handleropenvpn
     public static final String DEVICE_NAME = "device_name";
     public static final String TOAST = "toast";
 
@@ -114,6 +114,22 @@ public class BluetoothChat extends Activity {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
 
+    }
+    
+    public class MyOnItemSelectedListener implements OnItemSelectedListener {
+
+        public void onItemSelected(AdapterView<?> parent,
+            View view, int pos, long id) {
+            // Send the quick message
+        	Toast.makeText(parent.getContext(), "The message is " +
+        	          parent.getItemAtPosition(pos).toString(), Toast.LENGTH_LONG).show();
+        	String message = parent.getItemAtPosition(pos).toString();
+            sendMessage(message);
+        }
+
+        public void onNothingSelected(AdapterView parent) {
+          // Do nothing.
+        }
     }
 
     @Override
