@@ -16,22 +16,36 @@
 
 package com.example.android.BluetoothChat;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.Key;
 import java.security.KeyFactory;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Scanner;
 import java.util.UUID;
 
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.KeyGenerator;
 import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -557,85 +571,181 @@ public class BluetoothChatService {
 	}
 
 	private class Cyph {
+		
+		private MessageDigest md = null;
+		private SecretKeySpec secretKeySpec = null;
+		private AlgorithmParameterSpec paramSpec = null;
+		private final byte[] iv = new byte[]
+		                      {
+		                          0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09,0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f
+		                      };
+		
+		public void keyCreation(String[] names) {
+
+			File symKeyFile = new File( "Z:\\eclipse\\workspace\\BattlefieldBTTest2\\raw\\key");
+			
+			KeyGenerator kg = null;
+			try {
+				kg = KeyGenerator.getInstance("AES");
+				kg.init(192);
+			} catch (NoSuchAlgorithmException e) {
+				System.err.println("Algorithm AES doesn't exist");
+				System.exit(0);
+			}
+			
+			Key symKey = kg.generateKey();
+			
+			BufferedWriter writer = null;
+			try {
+				writer = new BufferedWriter( new FileWriter( symKeyFile ) );
+			} catch (IOException e) {
+				System.err.println("IO Exception w/ writer");
+				System.exit(0);		
+			}
+			
+			String sSymKey = null;
+			try {
+				sSymKey = new String(symKey.getEncoded(), "UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				System.err.println("Unsupported encoding UTF-8");
+				System.exit(0);		
+			}
+			
+			try {
+				writer.write(sSymKey);
+				writer.flush();
+			} catch (IOException e) {
+				System.err.println("IOException writing the encrypted key");
+				System.exit(0);
+			}
+			
+			
+			
+		}
 
 		public byte[] encrypt(byte[] message) {
 
 			byte[] encryptedBytes = null;
-
+			
+			byte[] secretKey = null;
+			
+			File symKeyFile = new File( "Z:\\eclipse\\workspace\\BattlefieldBTTest2\\raw\\key");
+			
+			InputStream stream = null;
 			try {
-
-				Scanner scanNameAndPrivate = null;
-
-				scanNameAndPrivate = new Scanner(new File(
-						"/secured-bluetooth-chat/res/raw/private"));
-
-				String sPrivateKey = scanNameAndPrivate.next();
-				byte[] privateKey = sPrivateKey.getBytes(Charset
-						.forName("UTF-8"));
-
-				Cipher cipher;
-
-				cipher = Cipher.getInstance("RSA");
-
-				X509EncodedKeySpec specPrivate = new X509EncodedKeySpec(
-						privateKey);
-				KeyFactory kfPrivate;
-
-				kfPrivate = KeyFactory.getInstance("RSA");
-				PrivateKey key_privateKey = kfPrivate
-						.generatePrivate(specPrivate);
-
-				cipher.init(Cipher.ENCRYPT_MODE, key_privateKey);
-
-				encryptedBytes = cipher.doFinal(message);
-
-			} catch (Exception ex) {
-				System.err.println(ex.getMessage());
+				stream = new FileInputStream(symKeyFile);
+			} catch (FileNotFoundException e2) {
+				System.err.println("No symKeyFile found");
+				System.exit(0);
 			}
+			
+			secretKey = new byte[128];
+			try {
+				stream.read(secretKey);
+			} catch (IOException e1) {
+				System.err.println("io exception stream");
+				System.exit(0);
+			}
+		
+			
+			try {
+				md = MessageDigest.getInstance("MD5");
+			} catch (NoSuchAlgorithmException e1) {
+				System.err.println("Digest error");
+				System.exit(0);
+			}
+			secretKeySpec = new SecretKeySpec( md.digest(secretKey), "AES" );
+			
+			paramSpec = new IvParameterSpec(iv);
+			
+			Cipher cipher = null;
+			try {
+				cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+				cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec, paramSpec);
+			} catch (NoSuchAlgorithmException e) {
+				System.err.println("No such algorithm AES");
+				System.exit(0);
+			} catch (NoSuchPaddingException e) {
+				System.err.println("No such padding");
+				System.exit(0);
+			} catch (InvalidKeyException e) {
+				System.err.println("InvalidKeySpec");
+				System.err.println(e.getMessage());
+				System.exit(0);
+			} catch (InvalidAlgorithmParameterException e) {
+				e.printStackTrace();
+			}
+			
+			try {
+				encryptedBytes = cipher.doFinal(message);
+			} catch (IllegalBlockSizeException e) {
+				System.err.println("Illegal Block Size");
+				System.exit(0);
+			} catch (BadPaddingException e) {
+				System.err.println("Bad padding");
+				System.exit(0);		
+			}
+			
 			return encryptedBytes;
 
 		}
 
-		public byte[] decrypt(String sender, byte[] message) {
+		public byte[] decrypt( byte[] message) {
 
 			byte[] decryptedBytes = null;
 			
+			byte[] secretKey = null;
+			
+			File symKeyFile = new File( "Z:\\eclipse\\workspace\\BattlefieldBTTest2\\key\\key");
+			
+			InputStream stream = null;
 			try {
+				stream = new FileInputStream(symKeyFile);
+			} catch (FileNotFoundException e2) {
+				System.err.println("No symKeyFile found");
+				System.exit(0);
+			}
 			
-				Scanner scan = null;
-
-			scan = new Scanner(new File(
-					"/secured-bluetooth-chat/res/raw/keys"));
-
-			String receiverName = "Receiver"; // TODO
-			String sPublicKey = null;
-
-			String currentName = null;
-			do {
-				currentName = scan.next();
-				sPublicKey = scan.next();		//Do I need to account for the '\n' character at the end of these lines?
-			} while (!receiverName.equals(currentName));
-
-			byte[] publicKey = sPublicKey
-					.getBytes(Charset.forName("UTF-8"));
+			secretKey = new byte[128];
+			try {
+				stream.read(secretKey);
+			} catch (IOException e1) {
+				System.err.println("io exception stream");
+				System.exit(0);
+			}
 			
-			Cipher cipher;
-
-			cipher = Cipher.getInstance("RSA");
-
-			X509EncodedKeySpec specPublic = new X509EncodedKeySpec(
-					publicKey);
-			KeyFactory kfPublic = KeyFactory.getInstance("RSA");
-			PublicKey key_publicKey = kfPublic.generatePublic(specPublic);
-
-			cipher.init(Cipher.DECRYPT_MODE, key_publicKey);
-
-			decryptedBytes = cipher.doFinal(message);
-
-		} catch (Exception ex) {
-			System.err.println(ex.getMessage());
-		}
-		return decryptedBytes;
+			
+			Cipher cipher = null;
+			try {
+				cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+				cipher.init(Cipher.DECRYPT_MODE, secretKeySpec, paramSpec);
+			} catch (NoSuchAlgorithmException e) {
+				System.err.println("No such algorithm AES");
+				System.exit(0);
+			} catch (NoSuchPaddingException e) {
+				System.err.println("No such padding");
+				System.exit(0);
+			} catch (InvalidKeyException e) {
+				System.err.println("InvalidKeySpecsdfsd");
+				System.err.println(e.getMessage());
+				System.exit(0);
+			} catch (InvalidAlgorithmParameterException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			try {
+				decryptedBytes = cipher.doFinal(message);
+			} catch (IllegalBlockSizeException e) {
+				System.err.println("Illegal Block Size");
+				System.exit(0);
+			} catch (BadPaddingException e) {
+				System.err.println("Bad padding");
+				System.exit(0);		
+			}
+			
+			return decryptedBytes;
+			
 		}
 
 	}
