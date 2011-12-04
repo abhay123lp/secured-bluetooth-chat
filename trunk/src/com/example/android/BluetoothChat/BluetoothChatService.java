@@ -706,6 +706,15 @@ public class BluetoothChatService {
 				System.exit(0);
 			}*/
 			
+			try {
+				md = MessageDigest.getInstance("MD5");
+			} catch (NoSuchAlgorithmException e1) {
+				System.err.println("Digest error");
+				System.exit(0);
+			}
+			secretKeySpec = new SecretKeySpec( md.digest(secretKey), "AES" );
+			
+			paramSpec = new IvParameterSpec(iv);
 			
 			Cipher cipher = null;
 			try {
