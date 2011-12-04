@@ -25,18 +25,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
-import java.security.KeyFactory;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.security.spec.AlgorithmParameterSpec;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.Scanner;
 import java.util.UUID;
 
 import javax.crypto.BadPaddingException;
@@ -582,7 +576,7 @@ public class BluetoothChatService {
 		
 		public void keyCreation(String[] names) {
 
-			File symKeyFile = new File( "Z:\\eclipse\\workspace\\BattlefieldBTTest2\\raw\\key");
+			File symKeyFile = new File( "C:\\Users\\Shawn\\workspace\\secured-bluetooth-chat\\res\\raw\\key");
 			
 			KeyGenerator kg = null;
 			try {
@@ -629,7 +623,7 @@ public class BluetoothChatService {
 			
 			byte[] secretKey = null;
 			
-			File symKeyFile = new File( "Z:\\eclipse\\workspace\\BattlefieldBTTest2\\raw\\key");
+			File symKeyFile = new File( "C:\\Users\\Shawn\\workspace\\secured-bluetooth-chat\\res\\raw\\key");
 			
 			InputStream stream = null;
 			try {
@@ -696,7 +690,7 @@ public class BluetoothChatService {
 			
 			byte[] secretKey = null;
 			
-			File symKeyFile = new File( "Z:\\eclipse\\workspace\\BattlefieldBTTest2\\key\\key");
+			File symKeyFile = new File( "C:\\Users\\Shawn\\workspace\\secured-bluetooth-chat\\res\\raw\\key");
 			
 			InputStream stream = null;
 			try {
