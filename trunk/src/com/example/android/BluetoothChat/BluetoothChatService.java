@@ -474,13 +474,13 @@ public class BluetoothChatService {
 		private final BluetoothSocket mmSocket;
 		private final InputStream mmInStream;
 		private final OutputStream mmOutStream;
-
+		
 		public ConnectedThread(BluetoothSocket socket, String socketType) {
 			Log.d(TAG, "create ConnectedThread: " + socketType);
 			mmSocket = socket;
 			InputStream tmpIn = null;
 			OutputStream tmpOut = null;
-
+			
 			// Get the BluetoothSocket input and output streams
 			try {
 				tmpIn = socket.getInputStream();
@@ -503,7 +503,8 @@ public class BluetoothChatService {
 				try {
 					// Read from the InputStream
 					Cyph cyph = new Cyph();
-					bytes = mmInStream.read(cyph.decrypt(buffer)); // Decrypt
+					//bytes = mmInStream.read(cyph.decrypt(buffer)); // Decrypt
+					bytes = mmInStream.read((buffer)); // Decrypt
 
 					// Send the obtained bytes to the UI Activity
 					mHandler.obtainMessage(BluetoothChat.MESSAGE_READ, bytes,
@@ -526,7 +527,8 @@ public class BluetoothChatService {
 			try {
 				
 				Cyph cyph = new Cyph();
-				mmOutStream.write(cyph.encrypt(buffer)); // Encrypt
+				//mmOutStream.write(cyph.encrypt(buffer)); // Encrypt
+				mmOutStream.write(buffer); // Encrypt
 
 				// Share the sent message back to the UI Activity
 				mHandler.obtainMessage(BluetoothChat.MESSAGE_WRITE, -1, -1,
