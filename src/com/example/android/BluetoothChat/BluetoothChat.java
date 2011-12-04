@@ -113,6 +113,7 @@ public class BluetoothChat extends Activity {
 
 		// Set up spinner menu
 		Spinner spinner = (Spinner) findViewById(R.id.quicklist);
+		spinner.setOnItemSelectedListener(new MyOnItemSelectedListener());
 		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
 				this, R.array.quicklist, android.R.layout.simple_spinner_item);
 		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -120,7 +121,7 @@ public class BluetoothChat extends Activity {
 
 	}
 
-	public class MyOnItemSelectedListener implements OnItemSelectedListener {
+	public class MyOnItemSelectedListener implements AdapterView.OnItemSelectedListener {
 
 		public void onItemSelected(AdapterView<?> parent, View view, int pos,
 				long id) {
