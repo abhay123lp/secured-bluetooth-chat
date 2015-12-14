@@ -1,0 +1,1 @@
+A Bluetooth chat application that uses cryptographic techniques to secure data transmission.  Tailored for use in battlefield applications.
